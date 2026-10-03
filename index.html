@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>威鼎營造工程 - 管理系統</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
+        
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            /* 辛勤工作的大地與陽光漸層 */
+            background: linear-gradient(180deg, #FDE68A 0%, #D97706 45%, #78350F 100%);
+            background-attachment: fixed;
+            color: #27272a;
+            overflow-x: hidden;
+        }
+
+        /* 泰雅/賽夏族風格 - 祖靈之眼(菱形)與紅黑白編織 */
+        .tribe-pattern {
+            background-color: #8B1C1C;
+            /* 正統原民祖靈之眼 SVG 圖騰 */
+            background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 0L40 20L20 40L0 20L20 0ZM20 8L32 20L20 32L8 20L20 8ZM20 16L24 20L20 24L16 20L20 16Z' fill='%23FFFFFF' fill-opacity='0.85' fill-rule='evenodd'/%3E%3Cpath d='M20 16L24 20L20 24L16 20L20 16Z' fill='%231A1A1A' fill-opacity='1' fill-rule='evenodd'/%3E%3C/svg%3E");
+            border-bottom: 6px solid #1a1a1a;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+            position: relative;
+        }
+        .tribe-pattern::after {
+            content: '';
+            position: absolute;
+            bottom: -6px; left: 0; right: 0; height: 6px;
+            background: repeating-linear-gradient(45deg, #fff, #fff 10px, #1a1a1a 10px, #1a1a1a 20px);
+        }
+
+        /* 穩重的大地工程邊框 (石頭/泥土質感) */
+        .tribe-border {
+            border: 4px solid #451a03;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.3), inset 0 0 0 2px #b45309;
+            backdrop-filter: blur(5px);
+        }
+
+        .construction-tape {
+            background: repeating-linear-gradient(
+                -45deg,
+                #f59e0b,
+                #f59e0b 20px,
+                #1c1917 20px,
+                #1c1917 40px
+            );
+            height: 12px;
+            width: 100%;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.4);
+        }
+
+        /* 按鈕風格優化 - 挖土機橘 / 綠地 */
+        .btn-excavator {
+            background: linear-gradient(to bottom, #f59e0b, #d97706);
+            color: #fff;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            border: 2px solid #78350f;
+            border-radius: 8px;
+            box-shadow: inset 0 2px 0 rgba(255,255,255,0.4), 0 5px 0 #78350f, 0 6px 8px rgba(0,0,0,0.4);
+            transition: all 0.1s;
+        }
+        .btn-excavator:active {
+            transform: translateY(5px);
+            box-shadow: inset 0 2px 0 rgba(255,255,255,0.4), 0 0px 0 #78350f, 0 1px 2px rgba(0,0,0,0.4);
+        }
+        
+        .btn-employee {
+            background: linear-gradient(to bottom, #16a34a, #15803d);
+            color: #fff;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            border: 2px solid #14532d;
+            border-radius: 8px;
+            box-shadow: inset 0 2px 0 rgba(255,255,255,0.4), 0 5px 0 #14532d, 0 6px 8px rgba(0,0,0,0.4);
+            transition: all 0.1s;
+        }
+        .btn-employee:active {
+            transform: translateY(5px);
+            box-shadow: inset 0 2px 0 rgba(255,255,255,0.4), 0 0px 0 #14532d, 0 1px 2px rgba(0,0,0,0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(to bottom, #78716c, #57534e);
+            color: white;
+            border: 2px solid #292524;
+            box-shadow: inset 0 2px 0 rgba(255,255,255,0.3), 0 5px 0 #292524, 0 6px 8px rgba(0,0,0,0.4);
+            transition: all 0.1s;
+        }
+        .btn-secondary:active {
+            transform: translateY(5px);
+            box-shadow: inset 0 2px 0 rgba(255,255,255,0.3), 0 0px 0 #292524, 0 1px 2px rgba(0,0,0,0.4);
+        }
+
+        /* 太陽與流汗動畫 */
+        @keyframes rotate-sun {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes pulse-heat {
+            0%, 100% { transform: scale(1); opacity: 0.6; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+        .sun-rays {
+            animation: rotate-sun 25s linear infinite;
+        }
+        .sun-glow {
+            animation: pulse-heat 4s ease-in-out infinite;
+        }
+
+        /* 機具移動動畫 */
+        @keyframes drive-right {
+            0% { transform: translateX(-150px) translateY(0); }
+            20% { transform: translateX(20vw) translateY(-2px); } /* 顛簸效果 */
+            40% { transform: translateX(40vw) translateY(1px); }
+            60% { transform: translateX(60vw) translateY(-1px); }
+            80% { transform: translateX(80vw) translateY(2px); }
+            100% { transform: translateX(110vw) translateY(0); }
+        }
+        @keyframes drive-left {
+            0% { transform: translateX(110vw) scaleX(-1) translateY(0); }
+            25% { transform: translateX(75vw) scaleX(-1) translateY(1px); }
+            50% { transform: translateX(50vw) scaleX(-1) translateY(-2px); }
+            75% { transform: translateX(25vw) scaleX(-1) translateY(1px); }
+            100% { transform: translateX(-150px) scaleX(-1) translateY(0); }
+        }
+        .anim-excavator {
+            animation: drive-right 30s linear infinite;
+        }
+        .anim-bobcat {
+            animation: drive-left 22s linear infinite;
+            animation-delay: 8s;
+        }
+
+        /* 輸入框與表格樣式優化 */
+        input, select, textarea {
+            background-color: #f5f5f4;
+            border: 2px solid #d6d3d1;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #b45309;
+            background-color: #fff;
+            box-shadow: 0 0 0 3px rgba(180, 83, 9, 0.2);
+        }
+        
+        table {
+            border-collapse: separate;
+            border-spacing: 0;
+            width: 100%;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #d6d3d1;
+        }
+        th, td {
+            border-bottom: 1px solid #e7e5e4;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #451a03;
+            color: #fef3c7;
+            font-weight: 700;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover td {
+            background-color: #fef3c7;
+        }
+
+        /* 隱藏捲軸但可滾動 */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col relative z-0">
+
+    <!-- 動畫背景層 (辛勤工作、烈日與工程機具) -->
+    <div class="fixed inset-0 pointer-events-none z-[-1] overflow-hidden">
+        <!-- 太陽 -->
+        <div class="absolute top-8 right-12 md:top-16 md:right-24">
+            <div class="absolute inset-0 bg-yellow-400 rounded-full blur-[40px] sun-glow h-32 w-32"></div>
+            <i class="fa-solid fa-sun text-yellow-200 text-6xl md:text-8xl sun-rays relative z-10 drop-shadow-[0_0_15px_rgba(253,224,71,1)]"></i>
+            <div class="absolute -bottom-4 right-0 text-orange-800/50 text-sm font-black tracking-widest whitespace-nowrap drop-shadow-md">流下辛勤的汗水</div>
+        </div>
+        
+        <!-- 大地/泥土地平線 -->
+        <div class="absolute bottom-0 w-full h-24 bg-[#3f2008] border-t-8 border-[#5c2e0b] rounded-t-[50%] md:rounded-t-[20%] scale-x-125 transform origin-bottom shadow-[0_-10px_20px_rgba(0,0,0,0.5)]"></div>
+        
+        <!-- 動畫：挖土機 -->
+        <div class="absolute bottom-16 w-32 anim-excavator flex flex-col items-center">
+            <div class="text-orange-500 drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)]">
+                <svg class="w-24 h-24" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19,10V7H15V10H14V5H9V10H8V3H4V10H3V12H4V19H20V12H21V10H19M7,17H5V12H7V17M13,17H11V12H13V17M17,17H15V12H17V17Z" />
+                </svg>
+            </div>
+            <div class="w-16 h-2 bg-gray-900 rounded-full mt-1 opacity-60 shadow-xl blur-[2px]"></div>
+        </div>
+
+        <!-- 動畫：山貓/推土機 -->
+        <div class="absolute bottom-12 w-24 anim-bobcat flex flex-col items-center">
+            <div class="text-yellow-500 drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)]">
+                <i class="fa-solid fa-tractor text-6xl"></i>
+            </div>
+            <div class="w-12 h-2 bg-gray-900 rounded-full mt-1 opacity-60 shadow-xl blur-[2px]"></div>
+        </div>
+    </div>
+
+    <!-- HEADER -->
+    <header class="tribe-pattern text-white py-5 relative z-10">
+        <div class="max-w-6xl mx-auto px-4 flex justify-between items-center relative z-10">
+            <div class="flex items-center gap-4 bg-black/40 p-2 pr-6 rounded-full backdrop-blur-sm border border-white/20 shadow-lg">
+                <!-- 挖土機 Logo -->
+                <div class="bg-white/20 p-2 rounded-full">
+                    <svg class="w-8 h-8 fill-current text-yellow-400 drop-shadow" viewBox="0 0 24 24">
+                        <path d="M19,10V7H15V10H14V5H9V10H8V3H4V10H3V12H4V19H20V12H21V10H19M7,17H5V12H7V17M13,17H11V12H13V17M17,17H15V12H17V17Z" />
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-black tracking-widest drop-shadow-lg text-[#fef3c7]">威鼎營造工程</h1>
+                    <p class="text-xs tracking-widest text-gray-300 mt-1">祖靈庇佑 ‧ 腳踏實地</p>
+                </div>
+            </div>
+            <div id="user-info" class="hidden text-sm font-bold bg-[#451a03] px-4 py-2 rounded-lg border-2 border-yellow-600 shadow-xl">
+                目前身分：<br class="sm:hidden"><span id="current-user-display" class="text-yellow-400 sm:ml-2"></span>
+            </div>
+        </div>
+    </header>
+    <div class="construction-tape relative z-10"></div>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-grow w-full max-w-5xl mx-auto p-4 sm:p-6 flex flex-col justify-center relative z-10">
+        
+        <!-- 視圖：首頁/選擇登入身份 -->
+        <div id="view-home" class="view-section text-center space-y-8 animate-fade-in my-auto">
+            <div class="tribe-border p-8 sm:p-12 max-w-2xl mx-auto">
+                <h2 class="text-3xl font-black mb-8 text-[#451a03] border-b-2 border-gray-300 pb-4 flex items-center justify-center">
+                    <i class="fa-solid fa-helmet-safety mr-3 text-orange-600"></i>營造管理系統入口
+                </h2>
+                
+                <div class="flex flex-col sm:flex-row gap-6 justify-center">
+                    <button onclick="navTo('login-admin')" class="btn-excavator px-6 py-5 rounded-lg font-bold text-lg flex-1 flex items-center justify-center">
+                        <i class="fa-solid fa-hard-hat text-2xl mr-3"></i>
+                        管理員登入
+                    </button>
+                    
+                    <button onclick="navTo('login-employee')" class="btn-employee px-6 py-5 rounded-lg font-bold text-lg flex-1 flex items-center justify-center">
+                        <i class="fa-solid fa-users-gear text-2xl mr-3"></i>
+                        員工登入
+                    </button>
+                </div>
+
+                <div class="mt-8 pt-6 border-t-2 border-gray-300">
+                    <button onclick="navTo('register')" class="btn-secondary px-6 py-3 rounded-lg font-bold w-full sm:w-auto text-lg shadow-lg">
+                        <i class="fa-solid fa-file-signature mr-2"></i>新進員工註冊單
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 視圖：管理員登入 -->
+        <div id="view-login-admin" class="view-section hidden max-w-md mx-auto w-full">
+            <div class="tribe-border p-6 sm:p-8 rounded-lg shadow-xl bg-white">
+                <h2 class="text-2xl font-bold mb-6 text-center text-[#8B0000]">
+                    <i class="fa-solid fa-lock mr-2"></i>管理員登入
+                </h2>
+                <form onsubmit="handleAdminLogin(event)" class="space-y-4">
+                    <div>
+                        <label class="block font-bold mb-1">管理員帳號</label>
+                        <input type="text" id="admin-acc" class="w-full p-3 rounded" placeholder="請輸入帳號 (kagiy)" required>
+                    </div>
+                    <div>
+                        <label class="block font-bold mb-1">管理員密碼</label>
+                        <input type="password" id="admin-pwd" class="w-full p-3 rounded" placeholder="請輸入密碼 (660828)" required>
+                    </div>
+                    <div class="pt-4 flex gap-4">
+                        <button type="button" onclick="navTo('home')" class="btn-secondary flex-1 py-3 rounded-lg font-bold">返回</button>
+                        <button type="submit" class="btn-excavator flex-1 py-3 rounded-lg font-bold text-white">登入</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- 視圖：員工登入 -->
+        <div id="view-login-employee" class="view-section hidden max-w-md mx-auto w-full">
+            <div class="tribe-border p-6 sm:p-8 rounded-lg shadow-xl bg-white">
+                <h2 class="text-2xl font-bold mb-6 text-center text-[#15803d]">
+                    <i class="fa-solid fa-users mr-2"></i>員工登入
+                </h2>
+                <form onsubmit="handleEmployeeLogin(event)" class="space-y-5">
+                    <div>
+                        <label class="block font-bold mb-1 text-gray-700">員工帳號 (暱稱)</label>
+                        <input type="text" id="emp-acc" class="w-full p-3 rounded" placeholder="請輸入設定的帳號暱稱" required>
+                    </div>
+                    <div>
+                        <label class="block font-bold mb-1 text-gray-700">密碼</label>
+                        <input type="password" id="emp-pwd" class="w-full p-3 rounded" placeholder="請輸入密碼" required>
+                    </div>
+                    <div class="pt-4 flex gap-4">
+                        <button type="button" onclick="navTo('home')" class="btn-secondary flex-1 py-3 rounded-lg font-bold">返回</button>
+                        <button type="submit" class="btn-employee flex-1 py-3 rounded-lg font-bold text-white">登入</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- 視圖：員工註冊 -->
+        <div id="view-register" class="view-section hidden max-w-2xl mx-auto w-full">
+            <div class="tribe-border p-6 sm:p-8 rounded-lg shadow-xl bg-white">
+                <h2 class="text-2xl font-bold mb-6 text-center text-[#8B0000]">
+                    <i class="fa-solid fa-file-signature mr-2"></i>新進員工註冊單
+                </h2>
+                <p class="text-sm text-gray-500 mb-4 text-center">請填寫真實資料，註冊後需由管理員審核方可登入。</p>
+                <form onsubmit="handleRegister(event)" class="space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block font-bold mb-1">真實姓名 <span class="text-red-500">*</span></label>
+                            <input type="text" id="reg-name" class="w-full p-2 rounded" required>
+                        </div>
+                        <div>
+                            <label class="block font-bold mb-1">身份證字號 <span class="text-red-500">*</span></label>
+                            <input type="text" id="reg-id" class="w-full p-2 rounded" required pattern="^[A-Za-z][12]\d{8}$" title="請輸入正確的身份證字號格式">
+                        </div>
+                        <div>
+                            <label class="block font-bold mb-1">出生年月日 <span class="text-red-500">*</span></label>
+                            <input type="date" id="reg-dob" class="w-full p-2 rounded" required>
+                        </div>
+                        <div>
+                            <label class="block font-bold mb-1">設定帳號暱稱 (登入用) <span class="text-red-500">*</span></label>
+                            <input type="text" id="reg-acc" class="w-full p-2 rounded" required placeholder="如：阿道、yumin">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block font-bold mb-1">戶籍地址 <span class="text-red-500">*</span></label>
+                        <input type="text" id="reg-addr1" class="w-full p-2 rounded" required>
+                    </div>
+                    <div>
+                        <label class="block font-bold mb-1">居住地址 (若同戶籍可留空)</label>
+                        <input type="text" id="reg-addr2" class="w-full p-2 rounded">
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-orange-50 rounded border border-orange-200">
+                        <div>
+                            <label class="block font-bold mb-1">自行設定密碼 <span class="text-red-500">*</span></label>
+                            <input type="password" id="reg-pwd" class="w-full p-2 rounded" required placeholder="最少8碼，含1英文字及1數字">
+                            <p class="text-xs text-orange-600 mt-1">密碼最少一個英文字及數字共8位數</p>
+                        </div>
+                        <div>
+                            <label class="block font-bold mb-1">密碼確認 <span class="text-red-500">*</span></label>
+                            <input type="password" id="reg-pwd-confirm" class="w-full p-2 rounded" required>
+                        </div>
+                    </div>
+
+                    <div class="p-4 bg-red-50 rounded border border-red-200 mt-4">
+                        <label class="block font-bold mb-1 text-red-800">員工註冊專用密碼 <span class="text-red-500">*</span></label>
+                        <input type="password" id="reg-auth-code" class="w-full p-2 rounded border-red-300 focus:border-red-500 focus:ring-red-500" required placeholder="請輸入註冊授權碼 (按Enter可送出)">
+                    </div>
+
+                    <div class="pt-4 flex gap-4">
+                        <button type="button" onclick="navTo('home')" class="btn-secondary px-6 py-3 rounded-lg font-bold">取消返回</button>
+                        <button type="submit" class="btn-excavator flex-1 py-3 rounded-lg font-bold text-white">送出註冊資料</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- 視圖：管理員後台 -->
+        <div id="view-admin" class="view-section hidden w-full h-full flex flex-col">
+            
+            <div class="bg-white rounded-t-lg shadow-sm border-b border-gray-200 flex overflow-x-auto no-scrollbar">
+                <button onclick="switchAdminTab('sys-update')" id="tab-sys-update" class="px-6 py-4 font-bold text-[#8B0000] border-b-4 border-[#8B0000] whitespace-nowrap">
+                    <i class="fa-solid fa-address-book mr-2"></i>系統更新作業 (員工資料)
+                </button>
+                <button onclick="switchAdminTab('assign-task')" id="tab-assign-task" class="px-6 py-4 font-bold text-gray-500 hover:text-[#8B0000] whitespace-nowrap">
+                    <i class="fa-solid fa-clipboard-list mr-2"></i>派發工作
+                </button>
+                <button onclick="logout()" class="ml-auto px-6 py-4 font-bold text-gray-500 hover:text-red-600 whitespace-nowrap">
+                    <i class="fa-solid fa-sign-out-alt mr-2"></i>登出
+                </button>
+            </div>
+
+            <div class="tribe-border bg-white p-4 sm:p-6 rounded-b-lg shadow-xl flex-grow">
+                <!-- 員工資料分頁 -->
+                <div id="admin-tab-sys-update">
+                    <h3 class="text-xl font-bold mb-4 flex items-center">
+                        <i class="fa-solid fa-users-gear mr-2 text-gray-600"></i>註冊員工清單
+                    </h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr>
+                                    <th>姓名 / 暱稱</th>
+                                    <th>身份證 / 生日</th>
+                                    <th>地址 (戶籍/居住)</th>
+                                    <th>登入密碼(管理員權限)</th>
+                                    <th>狀態 / 操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="employee-list-tbody">
+                                <!-- JS 動態生成 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 派發工作分頁 -->
+                <div id="admin-tab-assign-task" class="hidden">
+                    <h3 class="text-xl font-bold mb-4 flex items-center">
+                        <i class="fa-solid fa-truck-pickup mr-2 text-gray-600"></i>指派新工程任務
+                    </h3>
+                    <form onsubmit="handleAssignTask(event)" class="bg-gray-50 p-4 rounded border border-gray-200 mb-6">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                            <div>
+                                <label class="block font-bold mb-1">選擇員工</label>
+                                <select id="task-emp" class="w-full p-2 rounded" required>
+                                    <!-- JS 動態生成 -->
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block font-bold mb-1">工程日期</label>
+                                <input type="date" id="task-date" class="w-full p-2 rounded" required>
+                            </div>
+                            <div>
+                                <label class="block font-bold mb-1">工程地點/案場</label>
+                                <input type="text" id="task-location" class="w-full p-2 rounded" required placeholder="如：竹東鎮XX路修繕">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block font-bold mb-1">工作內容說明</label>
+                            <input type="text" id="task-desc" class="w-full p-2 rounded mb-4" required placeholder="如：駕駛挖土機進行整地作業">
+                        </div>
+                        <button type="submit" class="btn-excavator px-6 py-2 rounded font-bold">
+                            <i class="fa-solid fa-paper-plane mr-2"></i>確認派發
+                        </button>
+                    </form>
+
+                    <h3 class="text-xl font-bold mb-4">已派發任務列表</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr>
+                                    <th>日期</th>
+                                    <th>負責員工</th>
+                                    <th>地點</th>
+                                    <th>任務內容</th>
+                                </tr>
+                            </thead>
+                            <tbody id="task-list-tbody">
+                                <!-- JS 動態生成 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 視圖：員工專區 -->
+        <div id="view-employee" class="view-section hidden w-full h-full flex flex-col">
+            
+            <div class="bg-white rounded-t-lg shadow-sm border-b border-gray-200 flex overflow-x-auto no-scrollbar">
+                <button onclick="switchEmpTab('clock')" id="tab-emp-clock" class="px-6 py-4 font-bold text-[#15803d] border-b-4 border-[#15803d] whitespace-nowrap">
+                    <i class="fa-solid fa-clock mr-2"></i>打卡/請假系統
+                </button>
+                <button onclick="switchEmpTab('tasks')" id="tab-emp-tasks" class="px-6 py-4 font-bold text-gray-500 hover:text-[#15803d] whitespace-nowrap">
+                    <i class="fa-solid fa-clipboard mr-2"></i>我的工作
+                </button>
+                <button onclick="logout()" class="ml-auto px-6 py-4 font-bold text-gray-500 hover:text-red-600 whitespace-nowrap">
+                    <i class="fa-solid fa-sign-out-alt mr-2"></i>登出
+                </button>
+            </div>
+
+            <div class="tribe-border bg-white p-4 sm:p-6 rounded-b-lg shadow-xl flex-grow" style="border-color: #15803d;">
+                
+                <!-- 打卡請假分頁 -->
+                <div id="emp-tab-clock">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- 打卡區 -->
+                        <div class="bg-gray-50 p-6 rounded border border-gray-300 text-center shadow-inner">
+                            <h3 class="text-xl font-bold mb-4 border-b pb-2 text-[#451a03]">今日出勤打卡</h3>
+                            <div class="text-5xl font-black text-gray-800 mb-6 drop-shadow" id="current-time">00:00:00</div>
+                            <div class="flex gap-4 justify-center">
+                                <button onclick="clockAction('上班')" class="btn-employee flex-1 py-4 rounded-lg font-bold text-lg">
+                                    <i class="fa-solid fa-sun mr-2 text-yellow-300"></i>上班打卡
+                                </button>
+                                <button onclick="clockAction('下班')" class="btn-secondary flex-1 py-4 rounded-lg font-bold text-lg">
+                                    <i class="fa-solid fa-moon mr-2 text-yellow-300"></i>下班打卡
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 請假區 -->
+                        <div class="bg-orange-50 p-6 rounded border border-orange-200">
+                            <h3 class="text-xl font-bold mb-4 border-b border-orange-300 pb-2 text-orange-800">員工請假申請</h3>
+                            <form onsubmit="handleLeave(event)" class="space-y-3">
+                                <div>
+                                    <label class="block font-bold mb-1 text-sm">請假日期</label>
+                                    <input type="date" id="leave-date" class="w-full p-2 rounded" required>
+                                </div>
+                                <div>
+                                    <label class="block font-bold mb-1 text-sm">請假類別</label>
+                                    <select id="leave-type" class="w-full p-2 rounded" required>
+                                        <option value="事假">事假</option>
+                                        <option value="病假">病假</option>
+                                        <option value="喪假">喪假</option>
+                                        <option value="特休">特休/年假</option>
+                                        <option value="其他">其他</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block font-bold mb-1 text-sm">事由說明</label>
+                                    <input type="text" id="leave-reason" class="w-full p-2 rounded" required>
+                                </div>
+                                <button type="submit" class="w-full py-2 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded shadow">送出假單</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <h3 class="text-xl font-bold mt-8 mb-4">我的出勤/請假紀錄</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr>
+                                    <th>時間 / 日期</th>
+                                    <th>類別 (上班/下班/請假)</th>
+                                    <th>備註/事由</th>
+                                </tr>
+                            </thead>
+                            <tbody id="emp-record-tbody">
+                                <!-- JS 動態生成 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 我的工作分頁 -->
+                <div id="emp-tab-tasks" class="hidden">
+                    <h3 class="text-xl font-bold mb-4 flex items-center">
+                        <i class="fa-solid fa-list-check mr-2 text-gray-600"></i>被指派的工程任務
+                    </h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr>
+                                    <th>工程日期</th>
+                                    <th>地點/案場</th>
+                                    <th>任務內容</th>
+                                </tr>
+                            </thead>
+                            <tbody id="emp-task-tbody">
+                                <!-- JS 動態生成 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- 自訂彈出視窗 (取代 alert) -->
+    <div id="custom-modal" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center p-4 opacity-0 transition-opacity duration-300 backdrop-blur-sm">
+        <div class="tribe-border bg-[#fdfbf7] p-0 rounded-xl shadow-2xl max-w-sm w-full transform scale-95 transition-transform duration-300 overflow-hidden" id="modal-content-box">
+            <div class="p-6">
+                <h3 id="modal-title" class="text-2xl font-black mb-2 pb-2 border-b-2 flex items-center">
+                    <i class="fa-solid fa-circle-info mr-2"></i>系統通知
+                </h3>
+                <p id="modal-message" class="text-gray-800 mt-4 leading-relaxed font-bold text-lg"></p>
+                <div class="mt-8 flex justify-end">
+                    <button onclick="closeModal()" class="btn-excavator px-8 py-3 rounded-lg font-bold shadow-md text-lg">確定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 確認專用彈出視窗 (刪除等重要操作) -->
+    <div id="confirm-modal" class="fixed inset-0 bg-black/70 z-[60] hidden flex items-center justify-center p-4 opacity-0 transition-opacity duration-300 backdrop-blur-sm">
+        <div class="tribe-border bg-[#fdfbf7] p-0 rounded-xl shadow-2xl max-w-sm w-full transform scale-95 transition-transform duration-300 overflow-hidden" id="confirm-content-box">
+            <div class="p-6">
+                <h3 id="confirm-title" class="text-2xl font-black mb-2 pb-2 border-b-2 flex items-center text-[#8B0000] border-[#8B0000]">
+                    <i class="fa-solid fa-triangle-exclamation mr-2"></i>系統確認
+                </h3>
+                <p id="confirm-message" class="text-gray-800 mt-4 leading-relaxed font-bold text-lg"></p>
+                <div class="mt-8 flex justify-end gap-4">
+                    <button onclick="closeConfirmModal()" class="btn-secondary px-6 py-3 rounded-lg font-bold shadow-md text-lg">取消</button>
+                    <button onclick="executeConfirm()" class="px-6 py-3 rounded-lg font-bold shadow-md text-lg bg-red-600 hover:bg-red-700 text-white transition-colors">確定刪除</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 載入中遮罩 -->
+    <div id="loading-overlay" class="fixed inset-0 bg-black/80 z-[100] flex flex-col items-center justify-center text-white transition-opacity duration-300">
+        <svg class="animate-spin h-12 w-12 text-yellow-400 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <p class="font-bold text-lg tracking-widest animate-pulse">系統資料連線中...</p>
+    </div>
+
+    <script type="module">
+        // --- STREAMING_CHUNK:Firebase Initialization ---
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, collection, onSnapshot, addDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // 客戶提供的 Firebase 配置
+        const firebaseConfig = {
+            apiKey: "AIzaSyADworlVEdlvgoA_InpSzxvlm33W2fOJ_w",
+            authDomain: "klapay-5b037.firebaseapp.com",
+            projectId: "klapay-5b037",
+            storageBucket: "klapay-5b037.firebasestorage.app",
+            messagingSenderId: "1046562353363",
+            appId: "1:1046562353363:web:cfb68ec2d3c2d1bf342426",
+            measurementId: "G-ZJCFV4Z5L2"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'weiding-construction';
+
+        // 系統全域狀態
+        let fbUser = null;
+        let users = [];
+        let tasks = [];
+        let attendance = [];
+        let currentUser = null;
+        let currentView = 'home';
+        let currentAdminTab = 'sys-update';
+        let currentEmpTab = 'clock';
+
+        async function initApp() {
+            try {
+                // 略過環境注入的權杖，強制使用匿名登入您的專屬 Firebase 專案
+                await signInAnonymously(auth);
+                fbUser = auth.currentUser;
+                setupFirestoreListeners();
+                restoreSession(); // 恢復重整前的頁面狀態
+            } catch (error) {
+                console.error("Firebase Auth Error:", error);
+                window.showModal("資料庫連線失敗，請重新整理頁面。", "連線錯誤", "error");
+                hideLoading();
+            }
+        }
+
+        // 恢復 F5 重整前的登入狀態與畫面
+        function restoreSession() {
+            const savedUser = sessionStorage.getItem('currentUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                document.getElementById('user-info').classList.remove('hidden');
+                if(currentUser.role === 'admin') {
+                    document.getElementById('current-user-display').innerText = '系統管理員 (kagiy)';
+                } else {
+                    document.getElementById('current-user-display').innerText = `員工：${currentUser.realName} (${currentUser.nickname})`;
+                }
+            }
+            const savedView = sessionStorage.getItem('currentView') || 'home';
+            window.navTo(savedView);
+            
+            if (savedView === 'admin' && currentUser?.role === 'admin') window.renderAdminView();
+            if (savedView === 'employee' && currentUser?.role === 'employee') window.renderEmployeeView();
+        }
+
+        function hideLoading() {
+            const loader = document.getElementById('loading-overlay');
+            if(loader) {
+                loader.classList.add('opacity-0');
+                setTimeout(() => loader.classList.add('hidden'), 300);
+            }
+        }
+
+        // --- STREAMING_CHUNK:Firestore Listeners ---
+        function setupFirestoreListeners() {
+            if (!fbUser) return;
+
+            const usersRef = collection(db, 'artifacts', appId, 'public', 'data', 'users');
+            const tasksRef = collection(db, 'artifacts', appId, 'public', 'data', 'tasks');
+            const attRef = collection(db, 'artifacts', appId, 'public', 'data', 'attendance');
+
+            let usersLoaded = false;
+            let tasksLoaded = false;
+            let attLoaded = false;
+
+            function checkAllLoaded() {
+                // 當至少有一個核心集合載入完成，即可隱藏讀取畫面
+                if(usersLoaded) {
+                    hideLoading();
+                }
+            }
+
+            // 監聽員工清單更新
+            onSnapshot(usersRef, (snapshot) => {
+                users = snapshot.docs.map(doc => ({ fbId: doc.id, ...doc.data() }));
+                usersLoaded = true;
+                if (currentView === 'admin' && currentAdminTab === 'sys-update') window.renderEmployeeList();
+                if (currentView === 'admin' && currentAdminTab === 'assign-task') window.renderTaskAssignment();
+                checkAllLoaded();
+            }, (error) => console.error("Error fetching users:", error));
+
+            // 監聽派發任務更新
+            onSnapshot(tasksRef, (snapshot) => {
+                tasks = snapshot.docs.map(doc => ({ fbId: doc.id, ...doc.data() }));
+                tasksLoaded = true;
+                if (currentView === 'admin' && currentAdminTab === 'assign-task') window.renderTaskAssignment();
+                if (currentView === 'employee' && currentEmpTab === 'tasks') window.renderEmpTasks();
+                checkAllLoaded();
+            }, (error) => console.error("Error fetching tasks:", error));
+
+            // 監聽出缺勤更新
+            onSnapshot(attRef, (snapshot) => {
+                attendance = snapshot.docs.map(doc => ({ fbId: doc.id, ...doc.data() }));
+                attLoaded = true;
+                if (currentView === 'employee' && currentEmpTab === 'clock') window.renderEmpAttendance();
+                checkAllLoaded();
+            }, (error) => console.error("Error fetching attendance:", error));
+        }
+
+        // --- STREAMING_CHUNK:Core Functions ---
+        // 將核心函式綁定到 window 使其能被 HTML 行內屬性 (如 onclick) 呼叫
+        window.navTo = function(viewId) {
+            currentView = viewId;
+            sessionStorage.setItem('currentView', viewId); // 記憶當前畫面，避免重整跑掉
+            
+            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+            document.getElementById('view-' + viewId).classList.remove('hidden');
+            
+            if(viewId === 'home') {
+                currentUser = null;
+                document.getElementById('user-info').classList.add('hidden');
+                document.querySelectorAll('form').forEach(f => f.reset());
+            }
+        };
+
+        window.showModal = function(message, title="系統通知", type="info") {
+            const modal = document.getElementById('custom-modal');
+            const titleEl = document.getElementById('modal-title');
+            const contentBox = document.getElementById('modal-content-box');
+            
+            titleEl.innerHTML = type === 'error' ? '<i class="fa-solid fa-triangle-exclamation mr-2"></i> 錯誤發生' : '<i class="fa-solid fa-helmet-safety mr-2"></i> ' + title;
+            titleEl.className = `text-2xl font-black mb-2 pb-2 border-b-2 flex items-center ${type === 'error' ? 'text-red-700 border-red-200' : 'text-[#78350f] border-[#d97706]'}`;
+            
+            document.getElementById('modal-message').innerText = message;
+            
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                contentBox.classList.remove('scale-95');
+            }, 10);
+        };
+
+        window.closeModal = function() {
+            const modal = document.getElementById('custom-modal');
+            const contentBox = document.getElementById('modal-content-box');
+            
+            modal.classList.add('opacity-0');
+            contentBox.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        };
+
+        let pendingConfirmAction = null;
+        window.showConfirmModal = function(message, title, onConfirm) {
+            const modal = document.getElementById('confirm-modal');
+            document.getElementById('confirm-message').innerText = message;
+            pendingConfirmAction = onConfirm;
+            
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                document.getElementById('confirm-content-box').classList.remove('scale-95');
+            }, 10);
+        };
+
+        window.closeConfirmModal = function() {
+            const modal = document.getElementById('confirm-modal');
+            const contentBox = document.getElementById('confirm-content-box');
+            
+            modal.classList.add('opacity-0');
+            contentBox.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                pendingConfirmAction = null;
+            }, 300);
+        };
+
+        window.executeConfirm = function() {
+            if (pendingConfirmAction) pendingConfirmAction();
+            window.closeConfirmModal();
+        };
+
+        window.toHalfWidth = function(str) {
+            if(!str) return '';
+            return str.replace(/[\uff01-\uff5e]/g, function(ch) {
+                return String.fromCharCode(ch.charCodeAt(0) - 0xfee0);
+            }).replace(/\u3000/g, ' ');
+        };
+
+        setInterval(() => {
+            const timeEl = document.getElementById('current-time');
+            if(timeEl) {
+                const now = new Date();
+                timeEl.innerText = now.toLocaleTimeString('zh-TW', { hour12: false });
+            }
+        }, 1000);
+
+        // --- STREAMING_CHUNK:Auth Logic ---
+        window.handleAdminLogin = function(e) {
+            e.preventDefault();
+            const acc = window.toHalfWidth(document.getElementById('admin-acc').value).trim();
+            const pwd = window.toHalfWidth(document.getElementById('admin-pwd').value).trim();
+
+            if (acc === 'kagiy' && pwd === '660828') {
+                currentUser = { role: 'admin', name: 'kagiy' };
+                sessionStorage.setItem('currentUser', JSON.stringify(currentUser)); // 記憶登入狀態
+                
+                document.getElementById('user-info').classList.remove('hidden');
+                document.getElementById('current-user-display').innerText = '系統管理員 (kagiy)';
+                window.navTo('admin');
+                window.renderAdminView();
+            } else {
+                window.showModal('管理員帳號或密碼錯誤！', '登入失敗', 'error');
+            }
+        };
+
+        window.handleEmployeeLogin = function(e) {
+            e.preventDefault();
+            const acc = window.toHalfWidth(document.getElementById('emp-acc').value).trim();
+            const pwd = window.toHalfWidth(document.getElementById('emp-pwd').value).trim();
+
+            const user = users.find(u => u.nickname === acc && u.password === pwd);
+            
+            if (user) {
+                if (user.status !== 'approved') {
+                    window.showModal('您的帳號尚未通過管理員審核，暫時無法登入。', '等待審核');
+                    return;
+                }
+                currentUser = { role: 'employee', ...user };
+                sessionStorage.setItem('currentUser', JSON.stringify(currentUser)); // 記憶登入狀態
+                
+                document.getElementById('user-info').classList.remove('hidden');
+                document.getElementById('current-user-display').innerText = `員工：${user.realName} (${user.nickname})`;
+                window.navTo('employee');
+                window.renderEmployeeView();
+            } else {
+                window.showModal('員工帳號或密碼錯誤！', '登入失敗', 'error');
+            }
+        };
+
+        window.logout = function() {
+            currentUser = null;
+            sessionStorage.removeItem('currentUser');
+            sessionStorage.setItem('currentView', 'home');
+            window.navTo('home');
+            window.showModal('您已成功登出系統。', '登出成功');
+        };
+
+        // --- STREAMING_CHUNK:Registration ---
+        window.handleRegister = async function(e) {
+            e.preventDefault();
+            if (!fbUser) {
+                window.showModal('系統尚未準備完成，請稍候重試。', '錯誤', 'error');
+                return;
+            }
+
+            const name = document.getElementById('reg-name').value.trim();
+            const id = document.getElementById('reg-id').value.trim().toUpperCase();
+            const dob = document.getElementById('reg-dob').value;
+            const acc = window.toHalfWidth(document.getElementById('reg-acc').value).trim();
+            const addr1 = document.getElementById('reg-addr1').value.trim();
+            const addr2 = document.getElementById('reg-addr2').value.trim();
+            const pwd = window.toHalfWidth(document.getElementById('reg-pwd').value).trim();
+            const pwdConfirm = window.toHalfWidth(document.getElementById('reg-pwd-confirm').value).trim();
+            const regAuthCode = window.toHalfWidth(document.getElementById('reg-auth-code').value).trim();
+
+            if (regAuthCode !== '660828') {
+                window.showModal('員工註冊專用密碼錯誤！無法進行註冊。', '授權失敗', 'error');
+                return;
+            }
+
+            if (users.some(u => u.nickname === acc)) {
+                window.showModal('此帳號暱稱已被使用，請更換一個。', '註冊失敗', 'error');
+                return;
+            }
+
+            const pwdRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$/;
+            if (!pwdRegex.test(pwd)) {
+                window.showModal('密碼格式不符！最少需要一個英文字母及一個數字，且總長度至少為8位數。', '密碼不合規定', 'error');
+                return;
+            }
+
+            if (pwd !== pwdConfirm) {
+                window.showModal('兩次輸入的密碼不一致！', '密碼錯誤', 'error');
+                return;
+            }
+
+            const newUser = {
+                realName: name,
+                idNumber: id,
+                dob: dob,
+                regAddr: addr1,
+                resAddr: addr2 || addr1,
+                nickname: acc,
+                password: pwd,
+                status: 'pending', // 預設需經過審核
+                timestamp: Date.now()
+            };
+
+            try {
+                const usersRef = collection(db, 'artifacts', appId, 'public', 'data', 'users');
+                await addDoc(usersRef, newUser);
+                window.showModal('註冊資料已成功送出！請等待負責人確認後方可登入。', '註冊成功');
+                // 清空表單
+                e.target.reset();
+                window.navTo('home');
+            } catch(error) {
+                console.error("Register error:", error);
+                window.showModal('註冊失敗，系統連線異常。', '錯誤', 'error');
+            }
+        };
+
+        // --- STREAMING_CHUNK:Admin Functions ---
+        window.switchAdminTab = function(tabName) {
+            currentAdminTab = tabName;
+            document.getElementById('admin-tab-sys-update').classList.add('hidden');
+            document.getElementById('admin-tab-assign-task').classList.add('hidden');
+            
+            document.getElementById('tab-sys-update').classList.replace('border-b-4', 'border-transparent');
+            document.getElementById('tab-sys-update').classList.replace('text-[#8B0000]', 'text-gray-500');
+            document.getElementById('tab-assign-task').classList.replace('border-b-4', 'border-transparent');
+            document.getElementById('tab-assign-task').classList.replace('text-[#8B0000]', 'text-gray-500');
+
+            document.getElementById(`admin-tab-${tabName}`).classList.remove('hidden');
+            document.getElementById(`tab-${tabName}`).classList.replace('border-transparent', 'border-b-4');
+            document.getElementById(`tab-${tabName}`).classList.replace('text-gray-500', 'text-[#8B0000]');
+            document.getElementById(`tab-${tabName}`).classList.add('border-[#8B0000]');
+
+            if(tabName === 'sys-update') window.renderEmployeeList();
+            if(tabName === 'assign-task') window.renderTaskAssignment();
+        };
+
+        window.renderAdminView = function() {
+            window.switchAdminTab('sys-update');
+        };
+
+        window.renderEmployeeList = function() {
+            const tbody = document.getElementById('employee-list-tbody');
+            tbody.innerHTML = '';
+            
+            if (users.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-gray-500">目前無任何員工資料</td></tr>`;
+                return;
+            }
+
+            // 修改排序：將 timestamp 最大的(最新註冊) 排在最上方
+            const sortedUsers = [...users].sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+            sortedUsers.forEach((u) => {
+                const statusBadge = u.status === 'approved' 
+                    ? `<span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-bold w-full inline-block text-center mb-1">已確認可登入</span>`
+                    : `<span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs font-bold w-full inline-block text-center mb-1">待確認</span>`;
+                
+                const actionBtn = u.status === 'pending'
+                    ? `<button onclick="approveUser('${u.fbId}')" class="bg-[#15803d] text-white px-3 py-1 rounded text-xs hover:bg-green-800 transition shadow w-full mb-1">確認 (允許登入)</button>
+                       <button onclick="confirmDeleteUser('${u.fbId}', '${u.realName}')" class="bg-red-600 text-white px-3 py-1 rounded text-xs hover:bg-red-800 transition shadow w-full">刪除資料</button>`
+                    : `<button onclick="confirmDeleteUser('${u.fbId}', '${u.realName}')" class="bg-red-600 text-white px-3 py-1 rounded text-xs hover:bg-red-800 transition shadow w-full">刪除資料</button>`;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="font-bold">${u.realName}<br><span class="text-xs text-gray-500">帳號: ${u.nickname}</span></td>
+                    <td class="text-sm">${u.idNumber}<br><span class="text-xs text-gray-500">生: ${u.dob}</span></td>
+                    <td class="text-xs">戶籍: ${u.regAddr}<br>居住: ${u.resAddr}</td>
+                    <td class="font-mono text-red-600 bg-red-50 text-center font-bold tracking-wider">${u.password}</td>
+                    <td class="text-center">${statusBadge}<div class="mt-1">${actionBtn}</div></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        };
+
+        window.approveUser = async function(fbId) {
+            try {
+                if(!fbId) throw new Error("無效的資料ID");
+                const userDoc = doc(db, 'artifacts', appId, 'public', 'data', 'users', fbId);
+                await updateDoc(userDoc, { status: 'approved' });
+                window.showModal(`已成功確認該員工，現在對方可以登入了。`, '確認成功');
+            } catch(error) {
+                console.error("Approve error:", error);
+                window.showModal('操作失敗，可能資料已不存在，請重整頁面。', '系統錯誤', 'error');
+            }
+        };
+
+        window.confirmDeleteUser = function(fbId, name) {
+            window.showConfirmModal(`確定要刪除員工「${name}」的資料嗎？\n刪除後該員工將無法登入，且此動作無法復原。`, '確認刪除', async () => {
+                try {
+                    const userDoc = doc(db, 'artifacts', appId, 'public', 'data', 'users', fbId);
+                    await deleteDoc(userDoc);
+                    window.showModal('員工資料已成功刪除。', '刪除成功');
+                } catch(e) {
+                    console.error("Delete error:", e);
+                    window.showModal('刪除失敗，系統發生問題。', '錯誤', 'error');
+                }
+            });
+        };
+
+        window.renderTaskAssignment = function() {
+            const select = document.getElementById('task-emp');
+            select.innerHTML = '<option value="">請選擇指派員工...</option>';
+            users.filter(u => u.status === 'approved').forEach(u => {
+                select.innerHTML += `<option value="${u.nickname}">${u.realName} (${u.nickname})</option>`;
+            });
+
+            const tbody = document.getElementById('task-list-tbody');
+            tbody.innerHTML = '';
+            
+            if (tasks.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-gray-500">尚無派發紀錄</td></tr>`;
+                return;
+            }
+
+            // 反轉陣列讓最新任務在上方顯示
+            const sortedTasks = [...tasks].sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+            sortedTasks.forEach(t => {
+                const emp = users.find(u => u.nickname === t.empAcc);
+                const empName = emp ? emp.realName : t.empAcc;
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="font-mono">${t.date}</td>
+                    <td class="font-bold text-blue-700">${empName}</td>
+                    <td>${t.location}</td>
+                    <td>${t.desc}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        };
+
+        window.handleAssignTask = async function(e) {
+            e.preventDefault();
+            const empAcc = document.getElementById('task-emp').value;
+            const date = document.getElementById('task-date').value;
+            const location = document.getElementById('task-location').value;
+            const desc = document.getElementById('task-desc').value;
+
+            if(!empAcc) {
+                window.showModal('請選擇員工！', '派發失敗', 'error');
+                return;
+            }
+
+            try {
+                const tasksRef = collection(db, 'artifacts', appId, 'public', 'data', 'tasks');
+                await addDoc(tasksRef, {
+                    empAcc, date, location, desc, timestamp: Date.now()
+                });
+                window.showModal('工作任務已成功派發！', '派發成功');
+                document.getElementById('task-date').value = '';
+                document.getElementById('task-location').value = '';
+                document.getElementById('task-desc').value = '';
+            } catch (error) {
+                console.error("Assign task error:", error);
+                window.showModal('任務派發失敗。', '系統錯誤', 'error');
+            }
+        };
+
+        // --- STREAMING_CHUNK:Employee Functions ---
+        window.switchEmpTab = function(tabName) {
+            currentEmpTab = tabName;
+            document.getElementById('emp-tab-clock').classList.add('hidden');
+            document.getElementById('emp-tab-tasks').classList.add('hidden');
+            
+            document.getElementById('tab-emp-clock').classList.replace('border-b-4', 'border-transparent');
+            document.getElementById('tab-emp-clock').classList.replace('text-[#15803d]', 'text-gray-500');
+            document.getElementById('tab-emp-tasks').classList.replace('border-b-4', 'border-transparent');
+            document.getElementById('tab-emp-tasks').classList.replace('text-[#15803d]', 'text-gray-500');
+
+            document.getElementById(`emp-tab-${tabName}`).classList.remove('hidden');
+            document.getElementById(`tab-emp-${tabName}`).classList.replace('border-transparent', 'border-b-4');
+            document.getElementById(`tab-emp-${tabName}`).classList.replace('text-gray-500', 'text-[#15803d]');
+            document.getElementById(`tab-emp-${tabName}`).classList.add('border-[#15803d]');
+
+            if(tabName === 'clock') window.renderEmpAttendance();
+            if(tabName === 'tasks') window.renderEmpTasks();
+        };
+
+        window.renderEmployeeView = function() {
+            window.switchEmpTab('clock');
+        };
+
+        window.getNowString = function() {
+            const now = new Date();
+            const yyyy = now.getFullYear();
+            const mm = String(now.getMonth() + 1).padStart(2, '0');
+            const dd = String(now.getDate()).padStart(2, '0');
+            const hh = String(now.getHours()).padStart(2, '0');
+            const min = String(now.getMinutes()).padStart(2, '0');
+            const ss = String(now.getSeconds()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd} ${hh}:${min}:${ss}`;
+        };
+
+        window.clockAction = async function(type) {
+            if(!currentUser) return;
+            const timeStr = window.getNowString();
+            
+            try {
+                const attRef = collection(db, 'artifacts', appId, 'public', 'data', 'attendance');
+                await addDoc(attRef, {
+                    acc: currentUser.nickname,
+                    type: type,
+                    time: timeStr,
+                    note: '系統定位打卡',
+                    timestamp: Date.now()
+                });
+                window.showModal(`打卡成功！\n類型：${type}\n時間：${timeStr}`, '打卡完成');
+            } catch(error) {
+                console.error("Clock action error:", error);
+                window.showModal('打卡失敗，系統連線異常。', '錯誤', 'error');
+            }
+        };
+
+        window.handleLeave = async function(e) {
+            e.preventDefault();
+            if(!currentUser) return;
+            const date = document.getElementById('leave-date').value;
+            const type = document.getElementById('leave-type').value;
+            const reason = document.getElementById('leave-reason').value;
+
+            try {
+                const attRef = collection(db, 'artifacts', appId, 'public', 'data', 'attendance');
+                await addDoc(attRef, {
+                    acc: currentUser.nickname,
+                    type: `請假 (${type})`,
+                    time: date,
+                    note: reason,
+                    timestamp: Date.now()
+                });
+                window.showModal(`假單已送出！\n日期：${date}\n假別：${type}`, '請假申請成功');
+                document.getElementById('leave-date').value = '';
+                document.getElementById('leave-reason').value = '';
+            } catch(error) {
+                console.error("Leave action error:", error);
+                window.showModal('請假申請失敗，系統連線異常。', '錯誤', 'error');
+            }
+        };
+
+        window.renderEmpAttendance = function() {
+            const tbody = document.getElementById('emp-record-tbody');
+            tbody.innerHTML = '';
+            if(!currentUser) return;
+            
+            const myRecords = attendance.filter(a => a.acc === currentUser.nickname);
+            
+            if (myRecords.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" class="text-center py-4 text-gray-500">尚無出勤紀錄</td></tr>`;
+                return;
+            }
+
+            const sortedRecords = [...myRecords].sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+            sortedRecords.forEach(a => {
+                let typeBadge = '';
+                if(a.type === '上班') typeBadge = '<span class="text-blue-600 font-bold">上班打卡</span>';
+                else if(a.type === '下班') typeBadge = '<span class="text-gray-600 font-bold">下班打卡</span>';
+                else typeBadge = `<span class="text-orange-600 font-bold">${a.type}</span>`;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="font-mono text-sm">${a.time}</td>
+                    <td>${typeBadge}</td>
+                    <td class="text-gray-600">${a.note}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        };
+
+        window.renderEmpTasks = function() {
+            const tbody = document.getElementById('emp-task-tbody');
+            tbody.innerHTML = '';
+            if(!currentUser) return;
+            
+            const myTasks = tasks.filter(t => t.empAcc === currentUser.nickname);
+            
+            if (myTasks.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" class="text-center py-4 text-gray-500">目前無指派任務</td></tr>`;
+                return;
+            }
+
+            const sortedTasks = [...myTasks].sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+            sortedTasks.forEach(t => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="font-mono font-bold">${t.date}</td>
+                    <td class="text-[#8B0000] font-bold"><i class="fa-solid fa-location-dot mr-1"></i> ${t.location}</td>
+                    <td>${t.desc}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        };
+
+        // 啟動系統載入流程
+        initApp();
+    </script>
+</body>
+</html>
